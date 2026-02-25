@@ -13,7 +13,7 @@ tfidf_path = 'tfidf.joblib'
 with open(tfidf_path, 'rb') as file:
     tfidf = joblib.load(file)
 #book vector
-book_vec = np.load('book_vec.npz')['vec']
+book_vec = np.load('book_vec.npz')['vec'].astype(np.float16)
 
 #stemmer
 ps = PorterStemmer()
