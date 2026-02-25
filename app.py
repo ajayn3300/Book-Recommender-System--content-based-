@@ -6,13 +6,14 @@ import pandas as pd
 import numpy as np
 import re
 from nltk.stem.porter import PorterStemmer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Load the trained model
-model_path = 'book_recommender.HDF5'
-with open(model_path, 'rb') as file:
-    model = joblib.load(file)
-#data
-df = pd.read_parquet('books_data.parquet')
+tfidf_path = 'tfidf.joblib'
+with open(tfidf_path, 'rb') as file:
+    tfidf = joblib.load(file)
+
+#stemmer
 ps = PorterStemmer()
 
 app = Flask(__name__)
@@ -37,11 +38,17 @@ def predict():
     #tag 
     tag = ' '.join([ps.stem(i) for i in (genre + ' ' + description).split(' ')])
 
-    #get distance and indices
-    distance, indices = model.named_steps['nn'].kneighbors(model.named_steps['vectorizer'].transform([tag]),return_distance=True)
+    #transform tag into vector
+    tag = tfidf.transform([tag]).toarray().astype(np.float16)
+
+    #let's get most similar books
+    similar = list(enumerate(cosine_similarity(tag,np.load('book_vec.npz')['vec'])[0]))
+
+    #top 10 indices of similar books
+    indices = [i for i, j in sorted(similar, key = lambda x :x[1], reverse=True)[:10]]
     
     #getting the books
-    recommended_books = df.iloc[indices.flatten()][['title','author','coverImg']].to_dict(orient='records')
+    recommended_books = pd.read_parquet('books_modified.parquet').iloc[indices].to_dict(orient='records')
 
     return render_template(
         'recommendations.html',
