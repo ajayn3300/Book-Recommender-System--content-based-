@@ -12,6 +12,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 tfidf_path = 'tfidf.joblib'
 with open(tfidf_path, 'rb') as file:
     tfidf = joblib.load(file)
+#book vector
+book_vec = np.load('book_vec.npz')['vec']
 
 #stemmer
 ps = PorterStemmer()
@@ -42,7 +44,7 @@ def predict():
     tag = tfidf.transform([tag]).toarray().astype(np.float16)
 
     #let's get most similar books
-    similar = list(enumerate(cosine_similarity(tag,np.load('book_vec.npz')['vec'])[0]))
+    similar = list(enumerate(cosine_similarity(tag,book_vec)[0]))
 
     #top 10 indices of similar books
     indices = [i for i, j in sorted(similar, key = lambda x :x[1], reverse=True)[:10]]
