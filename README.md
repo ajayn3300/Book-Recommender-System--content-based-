@@ -279,12 +279,6 @@ Open the notebook and run all cells. This regenerates `books_modified.parquet`, 
 
 ---
 
-## 📄 License
-
-This project is released under the **MIT License**. See the `LICENSE` file for details.
-
----
-
 ## 👤 Author
 
 **Ajay**  
